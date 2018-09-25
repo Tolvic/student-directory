@@ -1,3 +1,5 @@
+@students = []
+
 def input_students
   puts "Please enter the names of the students"
   puts "To finish, just hit return twice"
@@ -90,17 +92,26 @@ def display_by_cohort(students)
 
 end
 
-def save_students(students)
+def save_students
   # open the file for writing
   file = File.open("students.csv", "w")
   # iterate over the array of students
-  students.each do |student|
+  @students.each do |student|
     student_data = [student[:name], student[:cohort]]
     csv_line = student_data.join(",")
     file.puts csv_line
   end
   file.close
   puts "Students saved to file."
+end
+
+def load_students
+  file = File.open("students.csv", "r")
+  file.readlines.each do |line|
+  name, cohort = line.chomp.split(',')
+    @students << {name: name, cohort: cohort.to_sym}
+  end
+  file.close
 end
 
 def user_options(students)
@@ -110,10 +121,9 @@ def user_options(students)
     puts "1 - print all students"
     puts "2 - Print students whoes name begins with a specific letter"
     puts "3 - Print students whoes name is under a specific character length"
-    puts "4 - Ammend a studennt's record"
-    puts "5 - print students by cohort"
-    puts "6 - Save students to file"
-    puts "quit"
+    puts "4 - print students by cohort"
+    puts "5 - return to main menu"
+    puts "**************"
 
     option = gets.chomp
     case option
@@ -124,19 +134,49 @@ def user_options(students)
       when "3"
         print_all(filter_by_char_length(students))
       when "4"
-        amend_record(students)
-      when "5"
         display_by_cohort(students)
-      when "6"
-        save_students(students)
-      when "quit"
-        puts "Good bye"
+      when "5"
         break
+      else
+        puts "Please enter a valid option."
       end
   end
 end
 
+def menu
+  students = []
+  loop do
+    # 1. print the menu and ask the user what to do
+    puts "**************"
+    puts "What would you like to do?"
+    puts "1. Input the students"
+    puts "2. Show the students"
+    puts "3. Save the students to students.csv"
+    puts "4. Load the list from students.csv"
+    puts "9. Exit" # 9 because we'll be adding more items
+    puts "**************"
+    # 2. read the input and save it into a variable
+    selection = gets.chomp
+    # 3. do what the user has asked
+    case selection
+    when "1"
+      @students = input_students
+    when "2"
+      user_options(@students)
+    when "3"
+      save_students
+    when "4"
+      load_students
+    when "9"
+      exit # this will cause the program to terminate
+    else
+      puts "I don't know what you meant, try again"
+    end
+  end
 
-students = input_students
+end
+
+
+
 #nothing happens until we call the methods
-user_options(students)
+menu
