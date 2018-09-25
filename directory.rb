@@ -72,19 +72,38 @@ def amend_record(students)
 
 end
 
-def display_by_cohort
-  sorted_by_sport = Hash.new
-  people.each { |arr|
-    if sorted_by_sport.key?(arr["sport"])
-      sorted_by_sport[arr["sport"]] << arr["name"]
+def display_by_cohort(students)
+  cohorts = Hash.new
+  students.each { |arr|
+    if cohorts.key?(arr[:cohort])
+      cohorts[arr[:cohort]] << arr
     else
-      sorted_by_sport[arr["sport"]] = [arr["name"]]
+      cohorts[arr[:cohort]] = [arr]
     end
   }
+  cohorts.each { |key, value|
+    puts "*** #{key} ***"
+    value.each { |value|
+      puts "ID: #{value[:id]} Name: #{value[:name]} Cohort: #{value[:cohort]} DOB: #{value[:dob]}"
+    }
+  }
+
+end
+
+def save_students(students)
+  # open the file for writing
+  file = File.open("students.csv", "w")
+  # iterate over the array of students
+  students.each do |student|
+    student_data = [student[:name], student[:cohort]]
+    csv_line = student_data.join(",")
+    file.puts csv_line
+  end
+  file.close
+  puts "Students saved to file."
 end
 
 def user_options(students)
-  print students
   loop do
     puts "**************"
     puts "what would you like to do?"
@@ -93,6 +112,7 @@ def user_options(students)
     puts "3 - Print students whoes name is under a specific character length"
     puts "4 - Ammend a studennt's record"
     puts "5 - print students by cohort"
+    puts "6 - Save students to file"
     puts "quit"
 
     option = gets.chomp
@@ -106,8 +126,9 @@ def user_options(students)
       when "4"
         amend_record(students)
       when "5"
-
-
+        display_by_cohort(students)
+      when "6"
+        save_students(students)
       when "quit"
         puts "Good bye"
         break
