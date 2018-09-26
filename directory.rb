@@ -6,21 +6,21 @@ def input_students
   # create an empty array
   students = []
   # get the first name
-  name = gets.chomp
+  name = STDIN.gets.chomp
   # while the name is not empty, repeat this code
   i = 0
   while !name.empty? do
     puts "Please enter cohort:"
-    cohort = gets.chomp
+    cohort = STDIN.gets.chomp
     puts "date of birth:"
-    dob = gets.chomp
+    dob = STDIN.gets.chomp
     dob = "TBC" if dob == ""
     # add the student hash to the array
     students << {id: i.to_s.to_sym, name: name, cohort: cohort.to_sym, dob: dob.to_sym}
     puts "Now we have #{students.count} students"
     # get another name from the user
     i+=1
-    name = gets.chomp
+    name = STDIN.gets.chomp
   end
   # return the array of students
   students
@@ -31,13 +31,11 @@ def print_header
   puts "-------------"
 end
 
-
 def print_students(students)
   students.each_with_index do |student,index|
     puts "#{index+1}. ID: #{student[:id]} Name: #{student[:name]} Cohort: #{student[:cohort]} DOB: #{student[:dob]}"
   end
 end
-
 
 def print_footer(students)
   puts "Overall, we have #{students.count} great students"
@@ -51,25 +49,25 @@ end
 
 def filter_by_letter(students)
   puts "Enter a letter."
-  letter = gets.chomp
+  letter = STDIN.gets.chomp
   return students.select{ |student| student[:name][0] == letter}
 end
 
 def filter_by_char_length(students)
   puts "what character length would you like to filter with?"
-  len = gets.chomp.to_i
+  len = STDIN.gets.chomp.to_i
   return students.select{ |student| student[:name].length <= len}
 end
 
 def amend_record(students)
   puts "Please enter the ID of the student you would like to ammend"
-  id = gets.chomp
+  id = STDIN.gets.chomp
   id = id.to_s.to_sym
   puts "what would you like to ammend?"
   students.select{ |student| student[:id] == id}[0].keys.each { |key|
     puts key unless key.to_s == "id"
   }
-  ammend = gets.chomp
+  ammend = STDIN.gets.chomp
   students
 
 end
@@ -105,13 +103,25 @@ def save_students
   puts "Students saved to file."
 end
 
-def load_students
-  file = File.open("students.csv", "r")
+def load_students(filename = "students.csv")
+  file = File.open(filename, "r")
   file.readlines.each do |line|
-  name, cohort = line.chomp.split(',')
+    name, cohort = line.chomp.split(',')
     @students << {name: name, cohort: cohort.to_sym}
   end
   file.close
+end
+
+def try_load_students
+  filename = ARGV.first # first argument from the command line
+  return if filename.nil? # get out of the method if it isn't given
+  if File.exists?(filename) # if it exists
+    load_students(filename)
+     puts "Loaded #{@students.count} from #{filename}"
+  else # if it doesn't exist
+    puts "Sorry, #{filename} doesn't exist."
+    exit # quit the program
+  end
 end
 
 def user_options(students)
@@ -125,7 +135,7 @@ def user_options(students)
     puts "5 - return to main menu"
     puts "**************"
 
-    option = gets.chomp
+    option = STDIN.gets.chomp
     case option
       when "1"
         print_all(students)
@@ -156,7 +166,7 @@ def menu
     puts "9. Exit" # 9 because we'll be adding more items
     puts "**************"
     # 2. read the input and save it into a variable
-    selection = gets.chomp
+    selection = STDIN.gets.chomp
     # 3. do what the user has asked
     case selection
     when "1"
@@ -173,10 +183,7 @@ def menu
       puts "I don't know what you meant, try again"
     end
   end
-
 end
-
-
 
 #nothing happens until we call the methods
 menu
